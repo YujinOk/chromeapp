@@ -4,10 +4,10 @@ const toDoList = document.getElementById("todo-list");
 
 const TODOS_KEY = "todos";
 // to save todoList
-const toDos = [];
+let toDos = [];
 
 function saveToDos() {
-    // saving the data into string as a part of making them an array
+    // saving the data into string as a part of making them an array later
     localStorage.setItem(TODOS_KEY, JSON.stringify(toDos));
 }
 
@@ -16,13 +16,17 @@ function deleteTodo(event) {
     // console.dir(event.target.parentElement.innerText);
     const li = event.target.parentElement;
     li.remove();
+    // console.log(typeof li.id);
+    toDos = toDos.filter((toDo) => toDo.id !== parseInt(li.id));
+    saveToDos();
 }
 
 // creating <li> from JS
 function paintToDo(newTodo) {
     const li = document.createElement("li");
+    li.id = newTodo.id;
     const span = document.createElement("span");
-    span.innerText = newTodo;
+    span.innerText = newTodo.text;
     const button = document.createElement("button");
     button.innerText = "❌";
     button.addEventListener("click", deleteTodo);
@@ -35,19 +39,30 @@ function paintToDo(newTodo) {
 function handleToDoSubmit(event) {
     event.preventDefault();
     const newTodo = toDoInput.value;
-    // After saving the value, it empties but not newTodo is empty
     toDoInput.value = "";
-    toDos.push(newTodo);
+    const newTodoObj = {
+        text: newTodo,
+        id: Date.now(),
+    };
+    // After saving the value, it empties but not newTodo is empty
+
+    toDos.push(newTodoObj);
     // console.log(newTodo, toDoInput.value);
-    paintToDo(newTodo);
+    paintToDo(newTodoObj);
     saveToDos();
 }
 
 toDoForm.addEventListener("submit", handleToDoSubmit);
 
-// get the data form localStorage and turn it into  array
-const savedTodos = localStorage.getItem(TODOS_KEY);
+// function sayHello(item) {
+//     console.log(item);
+// }
 
-if (savedTodos !== null) {
-    const parsedTodos = JSON.parse(saveToDos);
+// get the data form localStorage and turn it into  array
+const savedToDos = localStorage.getItem(TODOS_KEY);
+
+if (savedToDos !== null) {
+    const parsedToDos = JSON.parse(savedToDos);
+    toDos = parsedToDos;
+    parsedToDos.forEach(paintToDo);
 }
